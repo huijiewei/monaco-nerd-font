@@ -1,63 +1,63 @@
 name: build
 
 on:
-    workflow_dispatch:
+  workflow_dispatch:
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout Repo
-              uses: actions/checkout@v6
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v6
 
-            - name: Install Dependencies
-              run: |
-                  sudo apt update -y -q
-                  sudo apt install software-properties-common -y -q
-                  sudo apt install python3-fontforge -y -q
-                  sudo apt install fuse -y -q
+      - name: Install Dependencies
+        run: |
+          sudo apt update -y -q
+          sudo apt install software-properties-common -y -q
+          sudo apt install python3-fontforge -y -q
+          sudo apt install fuse -y -q
 
-            - name: Fetch FontForge
-              run: |
-                  curl -L "https://github.com/fontforge/fontforge/releases/download/20251009/FontForge-2025-10-09-Linux-x86_64.AppImage" --output fontforge
-                  chmod u+x fontforge
-                  echo Try appimage
-                  ./fontforge --version
-                  export PATH=`pwd`:$PATH
-                  echo "PATH=$PATH" >> $GITHUB_ENV
-                  echo Try appimage with path
-                  fontforge --version
+      - name: Fetch FontForge
+        run: |
+          curl -L "https://github.com/fontforge/fontforge/releases/download/20251009/FontForge-2025-10-09-Linux-x86_64.AppImage" --output fontforge
+          chmod u+x fontforge
+          echo Try appimage
+          ./fontforge --version
+          export PATH=`pwd`:$PATH
+          echo "PATH=$PATH" >> $GITHUB_ENV
+          echo Try appimage with path
+          fontforge --version
 
-            - name: Get Font Patcher
-              uses: robinraju/release-downloader@v1
-              with:
-                  repository: "ryanoasis/nerd-fonts"
-                  latest: true
-                  fileName: "FontPatcher.zip"
+      - name: Get Font Patcher
+        uses: robinraju/release-downloader@v1
+        with:
+          repository: "ryanoasis/nerd-fonts"
+          latest: true
+          fileName: "FontPatcher.zip"
 
-            - name: Open Font Patcher release
-              run: |
-                  unzip FontPatcher.zip
-                  chmod +x font-patcher
-                  echo "Font-Patcher ready"
+      - name: Open Font Patcher release
+        run: |
+          unzip FontPatcher.zip
+          chmod +x font-patcher
+          echo "Font-Patcher ready"
 
-            - name: Path Monaco
-              run: |
-                  mkdir -p output
-                  ./font-patcher --mono --outputdir output fonts/Monaco.ttf
+      - name: Path Monaco
+        run: |
+          mkdir -p output
+          ./font-patcher -c -s -q --careful -out output fonts/Monaco.ttf
 
-            - name: Package Result
-              run: |
-                  cd output
-                  zip -r Monaco-Nerd-Font.zip .
+      - name: Package Result
+        run: |
+          cd output
+          zip -r Monaco-Nerd-Font.zip .
 
-            - name: Set Artifact Name
-              run: |
-                  ARTIFACT="Monaco-Nerd-Font-$(date +'%Y%m%d')-${{ github.run_number }}"
-                  echo "ARTIFACT=$ARTIFACT" >> $GITHUB_ENV
+      - name: Set Artifact Name
+        run: |
+          ARTIFACT="Monaco-Nerd-Font-$(date +'%Y%m%d')-${{ github.run_number }}"
+          echo "ARTIFACT=$ARTIFACT" >> $GITHUB_ENV
 
-            - name: Upload Artifact
-              uses: actions/upload-artifact@v4
-              with:
-                  name: ${{ env.ARTIFACT }}
-                  path: output/Monaco-Nerd-Font.zip
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT }}
+          path: output/Monaco-Nerd-Font.zip
