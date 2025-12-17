@@ -44,7 +44,7 @@ jobs:
       - name: Path Monaco
         run: |
           mkdir -p output
-          ./font-patcher -c -s -q --careful -out output fonts/Monaco.ttf
+          ./font-patcher -c -q --careful -out output fonts/Monaco.ttf
 
       - name: Package Result
         run: |
